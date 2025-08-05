@@ -1,0 +1,50 @@
+name: Flutter Web CI with Dockerization
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  flutter-ci-docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.29.2"
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Check formatting
+        run: flutter format --set-exit-if-changed .
+
+      - name: Analyze code
+        run: flutter analyze
+
+      - name: Run tests
+        run: flutter test
+
+      - name: Build web
+        run: flutter build web
+
+      - name: Build Docker image
+        run: docker build -t flutter_web_app .
+
+      # Optional: Save Docker image as artifact for inspection (e.g., for later deployment)
+      - name: Save Docker image as tarball
+        run: docker save flutter_web_app:latest -o flutter_web_app.tar
+
+      - name: Upload Docker image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: flutter_web_app_docker_image
+          path: flutter_web_app.tar
