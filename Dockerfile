@@ -1,44 +1,45 @@
-# Install Operating system and dependencies
+# Utilise Ubuntu comme base
 FROM ubuntu:20.04
 
+# Empêche les prompts interactifs
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update
-RUN apt-get install -y curl git wget unzip libgconf-2-4 gdb libstdc++6 libglu1-mesa fonts-droid-fallback python3
-RUN apt-get clean
+# Dépendances requises
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    wget \
+    unzip \
+    libgconf-2-4 \
+    gdb \
+    libstdc++6 \
+    libglu1-mesa \
+    fonts-droid-fallback \
+    python3 \
+    xz-utils \
+    ca-certificates \
+    && apt-get clean
 
-ENV DEBIAN_FRONTEND=dialog
-ENV PUB_HOSTED_URL=https://pub.flutter-io.cn
-ENV FLUTTER_STORAGE_BASE_URL=https://storage.flutter-io.cn
+# Clone Flutter depuis la branche stable
+RUN git clone -b stable https://github.com/flutter/flutter.git /usr/local/flutter
 
-# download Flutter SDK from Flutter Github repo
-#RUN git clone https://github.com/toosenhenk/PoddiPod_App.git /usr/local/flutter
-#RUN git clone git@github.com:flutter/flutter.git /usr/local/flutter
-RUN git clone https://github.com/flutter/flutter.git /usr/local/flutter
-
-
-
-# Set flutter environment path
+# Ajoute Flutter au PATH
 ENV PATH="/usr/local/flutter/bin:/usr/local/flutter/bin/cache/dart-sdk/bin:${PATH}"
 
-# Run flutter doctor
-RUN flutter doctor
+# Accepte la licence Android (si nécessaire)
+RUN flutter doctor --android-licenses || true
 
-# Enable flutter web
-RUN flutter channel master
-RUN flutter upgrade
-RUN flutter config --enable-web
+# Exécute flutter doctor pour télécharger les composants nécessaires
+RUN flutter upgrade && flutter doctor
 
-# Copy files to container and build
-RUN mkdir /app/
-COPY . /app/
-WORKDIR /app/
-RUN flutter build web
+# Définis le dossier de travail
+WORKDIR /app
 
-# Record the exposed port
-EXPOSE 9000
+# Copie ton code dans le conteneur
+COPY . /app
 
-# make server startup script executable and start the web server
-RUN ["chmod", "+x", "/app/server/server.sh"]
+# Résout les dépendances Flutter
+RUN flutter pub get
 
-ENTRYPOINT [ "/app/server/server.sh"]
+# Commande par défaut (à adapter)
+CMD ["flutter", "build", "apk"]
