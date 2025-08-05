@@ -395,7 +395,8 @@ class AppTheme {
         fontWeight: FontWeight.w400,
         color: textSecondaryLight,
       ),
-    ), dialogTheme: DialogThemeData(backgroundColor: cardLight),
+    ),
+    dialogTheme: DialogThemeData(backgroundColor: cardLight),
   );
 
   /// Dark theme implementing Adaptive Professional Minimalism for low-light usage
@@ -728,7 +729,8 @@ class AppTheme {
         fontWeight: FontWeight.w400,
         color: textSecondaryDark,
       ),
-    ), dialogTheme: DialogThemeData(backgroundColor: cardDark),
+    ),
+    dialogTheme: DialogThemeData(backgroundColor: cardDark),
   );
 
   /// Helper method to build text theme using Inter font family
